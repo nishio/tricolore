@@ -22,6 +22,12 @@ class MontecarloPlayer(object):
         assert self.game.next == self.opposite
         if color == 'WHITE':
             color = reverse(self.opposite)
+        elif color == 'PASS':
+            if VERBOSE:
+                print 'move called:', pos, color
+                self.game.print_map()
+            self.game.switch_user()
+            return
         else:
             color = self.opposite
         y, x = pos
