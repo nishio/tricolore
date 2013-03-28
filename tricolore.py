@@ -102,27 +102,29 @@ def get_cells_to_reverse(game, pos, color):
             buf.append((x, y))
     return to_reverse
 
-
-@profile
-def is_avail(game, pos, color):
+def make_newmap(game):
     gmap = game.map
     map = [SENTINEL] * 57  # 7 * 8 + 1
     for i in range(6):
         s = 6 * i
         d = 8 + 7 * i
         map[d:d + 6] = gmap[s:s + 6]
+    return map
+
+@profile
+def is_avail(newmap, pos, color):
     x, y = pos
     orig_pos = 8 + 7 * y + x
 
     for dir in directions:
         pos = orig_pos
         pos += dir
-        v = map[pos]
+        v = newmap[pos]
         if v & 3 == 0: continue
         if is_same_color(v, color): continue
         while True:
             pos += dir
-            v = map[pos]
+            v = newmap[pos]
             if v & 3 == 0:
                 break
             if is_same_color(v, color):
@@ -262,14 +264,15 @@ class Game(object):
         ret = []
         color = self.next
         rev_color = reverse(color)
+        newmap = make_newmap(self)
         for i in range(MAP_WIDTH * MAP_WIDTH):
             x = i % MAP_WIDTH
             y = i / MAP_WIDTH
             if self._get(x, y) != EMPTY:
                 continue
-            if is_avail(self, (x, y), color):
+            if is_avail(newmap, (x, y), color):
                 ret.append(((x, y), color))
-            if is_avail(self, (x, y), rev_color):
+            if is_avail(newmap, (x, y), rev_color):
                 ret.append(((x, y), rev_color))
         return ret
 
