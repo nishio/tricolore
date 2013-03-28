@@ -106,6 +106,34 @@ def opposite(x):
     else:
         raise AssertionError
 
+
+# Policy (context: Reinforce Learning)
+def choose_randomly(possible_actions, game):
+    from random import choice
+    return choice(possible_actions)
+
+
+def montecarlo(possible_actions, game):
+    "play random 100 times for each possible actions"
+    scores = []
+    for a in possible_actions:
+        score = 0
+        g = game.clone()
+        put(g, *a)
+        g.switch_user()
+        for i in range(100):
+            # whi minus? : because it is score for opposite
+            score -= g.clone().do_playout()
+        scores.append(score)
+
+    return possible_actions[argmax(scores)]
+
+
+def argmax(xs):
+    max_value = max(xs)
+    return xs.index(max_value)
+
+
 class Game(object):
     def __init__(self):
         self.initialize()
@@ -189,7 +217,7 @@ class Game(object):
         return
 
 
-    def do_playout(self):
+    def do_playout(self, policy={RED: choose_randomly, BLUE: choose_randomly}, verbose=False):
         is_passed = False
         subject = self.next
         while True:
@@ -204,9 +232,12 @@ class Game(object):
                 continue
 
             is_passed = False
-            pos, color = choose_randomly(actions, self)
+            pos, color = policy[self.next](actions, self)
             put(self, pos, color)
             self.switch_user()
+            if verbose:
+                print pos, color
+                self.print_map()
 
             if not RED in self.map:
                 winner = BLUE
@@ -231,29 +262,6 @@ class Game(object):
         ret.next = self.next
         return ret
 
-# Policy (context: Reinforce Learning)
-def choose_randomly(possible_actions, game):
-    from random import choice
-    return choice(possible_actions)
-
-def montecalro(possible_actions, game):
-    "play random 100 times for each possible actions"
-    scores = []
-    for a in possible_actions:
-        score = 0
-        g = game.clone()
-        put(g, *a)
-        g.switch_user()
-        for i in range(100):
-            score += g.clone().do_playout()
-        scores.append(score)
-
-    return possible_actions[argmax(scores)]
-
-def argmax(xs):
-    max_value = max(xs)
-    return xs.index(max_value)
-
 def _test():
     import doctest
     doctest.testmod()
@@ -265,7 +273,4 @@ if __name__ == '__main__':
 
 # test_random_playout
 game = Game()
-game.clone().do_playout()
-game.clone().do_playout()
-game.clone().do_playout()
-
+game.do_playout(policy={RED: montecarlo, BLUE: montecarlo}, verbose=True)
