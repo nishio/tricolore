@@ -110,6 +110,7 @@ class Game(object):
     def __init__(self):
         self.initialize()
 
+
     def initialize(self):
         self.map = [EMPTY] * (MAP_WIDTH * MAP_WIDTH)
         self._set(2, 2, RED)
@@ -119,19 +120,24 @@ class Game(object):
         self.t = 0
         self.next = RED
 
+
     def _set(self, x, y, color):
         self.map[x + y * MAP_WIDTH] = color
 
+
     def _get(self, x, y):
         return self.map[x + y * MAP_WIDTH]
+
 
     def _lines(self):
         for i in range(6):
             yield self.map[i * MAP_WIDTH:(i + 1) * MAP_WIDTH]
 
+
     def print_map(self):
         for line in self._lines():
             print ' '.join(CHARS[x] for x in line)
+
 
     def get_state(self):
         EMPTY = 0
@@ -147,6 +153,7 @@ class Game(object):
             raise AssertionError
 
         return ''.join(str(MAP[x]) for x in self.map)
+
 
     def get_possible_actions(self):
         ret = []
@@ -165,9 +172,9 @@ class Game(object):
                 ret.append(((x, y), rev_color))
         return ret
 
+
     def switch_user(self):
         self.next = opposite(self.next)
-
 
 
     def count_colors(self):
