@@ -168,48 +168,48 @@ class Game(object):
     def switch_user(self):
         self.next = opposite(self.next)
 
-    def do(self, (pos, color)):
-        put(self, pos, color)
-        self.switch_user()
 
-        # finish game
-        if not RED in self.map:
-            return True
-        if not BLUE in self.map:
-            return True
-        if not self.get_possible_actions():
+
+    def count_colors(self):
+        red = self.map.count(RED)
+        blue = self.map.count(BLUE)
+        if red > blue:
+            winner = RED
+        elif blue > red:
+            winner = BLUE
+        else:
+            winner = None
+        return
+
+    def do_playout(self):
+        from random import choice
+        is_passed = False
+        subject = self.next
+        while True:
+            actions = self.get_possible_actions()
+            if not actions:
+                if is_passed:
+                    # both players have no possible move, finish
+                    winner = self.count_colors()
+                    break
+                # no possible move, pass
+                is_passed = True
+                continue
+
+            is_passed = False
+            pos, color = choice(actions)  # choose randomly
+            put(self, pos, color)
             self.switch_user()
-            if not self.get_possible_actions():
-                return True
 
-    def is_no_more_move(self):
-        if not self.get_possible_actions():
-            self.switch_user()
-            if not self.get_possible_actions():
-                return True
-            self.switch_user()
-        return False
+            if not RED in self.map:
+                winner = BLUE
+                break
+            if not BLUE in self.map:
+                winner = RED
+                break
 
-    def get_reward(self):
-        if not self.next in self.map:
-            return -1.0
-        if not opposite(self.next) in self.map:
-            return 1.0
-        if self.is_no_more_move():
-            red = self.map.count(RED)
-            blue = self.map.count(BLUE)
-            if red > blue:
-                if self.next == RED:
-                    return 1.0
-                else:
-                    return -1.0
-            elif blue > red:
-                if self.next == BLUE:
-                    return 1.0
-                else:
-                    return -1.0
-
-        return 0.0
+        print winner
+        self.print_map()
 
 def _test():
     import doctest
@@ -218,13 +218,6 @@ def _test():
 if __name__ == '__main__':
     _test()
 
-if 0:
-    import rl_lib
-    game = Game()
-    Qtable = rl_lib.initialize_q()
-    for i in range(100):
-        rl_lib.sarsa(game, Qtable)
-    print len(Qtable)
-    print Qtable
-    game.initialize()
-
+# test_random_playout
+game = Game()
+game.do_playout()
