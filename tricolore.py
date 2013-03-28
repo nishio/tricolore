@@ -54,7 +54,7 @@ WHITE = [WHITE_R, WHITE_B]
 CHARS = '.rBxxoo'
 MAP_WIDTH = 6
 REVERSED = [None, WHITE_R, WHITE_B, None, None, RED, BLUE]
-SAMPLE_PER_ACTION = 100
+SAMPLE_PER_ACTION = 200
 directions = [-8, -7, -6, -1, +1, +6, +7, +8]
 
 try:
