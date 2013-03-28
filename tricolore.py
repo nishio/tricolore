@@ -47,11 +47,15 @@ Tricolore
 from math import sqrt, log
 from collections import Counter
 from enum import *
+
 WHITE = [WHITE_R, WHITE_B]
 CHARS = '.rBxxoo'
 MAP_WIDTH = 6
 REVERSED = [None, WHITE_R, WHITE_B, None, None, RED, BLUE]
 SAMPLE_PER_ACTION = 100
+
+if getattr(__builtins__, 'profile', None) == None:
+    profile = lambda x: x
 
 def reverse(color):
     ret = REVERSED[color]
@@ -66,7 +70,7 @@ def is_same_color(x, y):
         return True
     return False
 
-
+@profile
 def get_cells_to_reverse(game, pos, color):
     dirs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
     to_reverse = []
