@@ -46,12 +46,7 @@ Tricolore
 """
 from math import sqrt, log
 from collections import Counter
-
-EMPTY = 0
-RED = 1
-BLUE = 2
-WHITE_R = 5
-WHITE_B = 6
+from enum import *
 WHITE = [WHITE_R, WHITE_B]
 CHARS = '.rBxxoo'
 MAP_WIDTH = 6
