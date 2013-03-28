@@ -51,6 +51,7 @@ WHITE = [WHITE_R, WHITE_B]
 CHARS = '.rBxxoo'
 MAP_WIDTH = 6
 REVERSED = [None, WHITE_R, WHITE_B, None, None, RED, BLUE]
+SAMPLE_PER_ACTION = 100
 
 def reverse(color):
     ret = REVERSED[color]
@@ -115,14 +116,14 @@ def choose_randomly(possible_actions, game):
 
 
 def montecarlo(possible_actions, game):
-    "play random 100 times for each possible actions"
+    "play random 100 times(SAMPLE_PER_ACTION) for each possible actions"
     scores = []
     for a in possible_actions:
         score = 0
         g = game.clone()
         put(g, *a)
         g.switch_user()
-        for i in range(100):
+        for i in range(SAMPLE_PER_ACTION):
             # whi minus? : because it is score for opposite
             score -= g.clone().do_playout()
         scores.append(score)
@@ -146,7 +147,7 @@ def montecarlo_ucb(possible_actions, game):
 
     N = len(possible_actions)
     parent_visited = N
-    for _sample in xrange(N * 99):
+    for _sample in xrange(N * (SAMPLE_PER_ACTION - 1)):
         ucb = [0] * N
         for i in xrange(N):
             v = visited[i]
