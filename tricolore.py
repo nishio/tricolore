@@ -60,12 +60,14 @@ def reverse(color):
     if ret == None: raise AssertionError('cannot reverse')
     return ret
 
+
 def is_same_color(x, y):
     if x == y:
         return True
     if x in WHITE and y in WHITE:
         return True
     return False
+
 
 def get_cells_to_reverse(game, pos, color):
     dirs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
@@ -88,6 +90,7 @@ def get_cells_to_reverse(game, pos, color):
             buf.append((x, y))
     return to_reverse
 
+
 def put(game, pos, color):
     to_reverse = get_cells_to_reverse(game, pos, color)
     if not to_reverse:
@@ -97,6 +100,7 @@ def put(game, pos, color):
     for x, y in to_reverse:
         game._set(x, y, reverse(game._get(x, y)))
     game._set(*pos, color=color)
+
 
 def opposite(x):
     if x == RED:
