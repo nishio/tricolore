@@ -32,7 +32,7 @@ Tricolore
 . . r . . .
 . . . . . .
 
->>> list(g.get_possible_actions())
+>>> g.get_possible_actions()
 [((1, 1), 5), ((2, 1), 5), ((3, 1), 5), ((4, 1), 5), ((4, 2), 1), ((4, 4), 1), ((1, 5), 5), ((2, 5), 5)]
 
 >>> put(g, (4, 2), RED)
@@ -55,6 +55,7 @@ CHARS = '.rBxxoo'
 MAP_WIDTH = 6
 REVERSED = [None, WHITE_R, WHITE_B, None, None, RED, BLUE]
 SAMPLE_PER_ACTION = 100
+directions = [-8, -7, -6, -1, +1, +6, +7, +8]
 
 if getattr(__builtins__, 'profile', None) == None:
     profile = lambda x: x
@@ -74,25 +75,59 @@ def is_same_color(x, y):
 
 @profile
 def get_cells_to_reverse(game, pos, color):
-    dirs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    gmap = game.map
+    map = [SENTINEL] * 57 # 7 * 8 + 1
+    for i in range(6):
+        s = 6 * i
+        d = 8 + 7 * i
+        map[d:d + 6] = gmap[s:s + 6]
+    x, y = pos
+    orig_pos = 8 + 7 * y + x
+
     to_reverse = []
-    for dx, dy in dirs:
-        x, y = pos
+    for dir in directions:
+        pos = orig_pos
         buf = []
         while True:
-            x += dx
-            y += dy
-            if x < 0 or x >= MAP_WIDTH or y < 0 or y >= MAP_WIDTH:
-                # out of bound
-                break
-            v = game._get(x, y)
-            if v == EMPTY:
-                break
+            pos += dir
+            v = map[pos]
+            if v == SENTINEL: break
+            if v == EMPTY: break
             if is_same_color(v, color):
                 to_reverse.extend(buf)
                 break
+            xy = pos - 8
+            x = xy % 7
+            y = xy / 7
             buf.append((x, y))
     return to_reverse
+
+
+@profile
+def is_avail(game, pos, color):
+    gmap = game.map
+    map = [SENTINEL] * 57  # 7 * 8 + 1
+    for i in range(6):
+        s = 6 * i
+        d = 8 + 7 * i
+        map[d:d + 6] = gmap[s:s + 6]
+    x, y = pos
+    orig_pos = 8 + 7 * y + x
+
+    for dir in directions:
+        pos = orig_pos
+        pos += dir
+        v = map[pos]
+        if v & 3 == 0: continue
+        if is_same_color(v, color): continue
+        while True:
+            pos += dir
+            v = map[pos]
+            if v & 3 == 0:
+                break
+            if is_same_color(v, color):
+                return True
+    return False
 
 
 def put(game, pos, color):
@@ -232,11 +267,9 @@ class Game(object):
             y = i / MAP_WIDTH
             if self._get(x, y) != EMPTY:
                 continue
-            acts = get_cells_to_reverse(self, (x, y), color)
-            if acts:
+            if is_avail(self, (x, y), color):
                 ret.append(((x, y), color))
-            acts = get_cells_to_reverse(self, (x, y), rev_color)
-            if acts:
+            if is_avail(self, (x, y), rev_color):
                 ret.append(((x, y), rev_color))
         return ret
 
