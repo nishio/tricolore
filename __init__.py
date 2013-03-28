@@ -38,7 +38,11 @@ class MontecarloPlayer(object):
         self.game.switch_user()
 
     def nextmove(self):
-        assert self.game.next == self.side
+        #assert self.game.next == self.side
+        if self.game.next != self.side:
+            # opponent did pass
+            self.game.switch_user()
+
         actions = self.game.get_possible_actions()
         if not actions:
             self.game.switch_user()
