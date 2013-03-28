@@ -47,6 +47,8 @@ Tricolore
 from math import sqrt, log
 from collections import Counter
 from enum import *
+from random import seed
+seed(1234)
 
 WHITE = [WHITE_R, WHITE_B]
 CHARS = '.rBxxoo'
@@ -316,10 +318,11 @@ def main():
     stat = Counter()
     while True:
         g = game.clone()
-        s = g.do_playout(policy={RED: montecarlo_ucb, BLUE: montecarlo})
+        s = g.do_playout(policy={RED: montecarlo_ucb, BLUE: montecarlo_ucb})
         g.print_map()
         stat.update([s])
         print stat
+        break
 
 if __name__ == '__main__':
     _test()
