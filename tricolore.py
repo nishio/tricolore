@@ -44,6 +44,8 @@ Tricolore
 . . r . . .
 . . . . . .
 """
+from math import sqrt, log
+from collections import Counter
 
 EMPTY = 0
 RED = 1
@@ -129,6 +131,40 @@ def montecarlo(possible_actions, game):
             # whi minus? : because it is score for opposite
             score -= g.clone().do_playout()
         scores.append(score)
+
+    return possible_actions[argmax(scores)]
+
+
+def montecarlo_ucb(possible_actions, game):
+    "play 100 x len(possible_actions) times, choosing action with UCB"
+    scores = []
+    visited = []
+    games = []
+    for a in possible_actions:
+        g = game.clone()
+        put(g, *a)
+        g.switch_user()
+        games.append(g)
+        score = -g.clone().do_playout()
+        scores.append(score)
+        visited.append(1)
+
+    N = len(possible_actions)
+    parent_visited = N
+    for _sample in xrange(N * 99):
+        ucb = [0] * N
+        for i in xrange(N):
+            v = visited[i]
+            ucb[i] = scores[i] / v + sqrt(2 * log(parent_visited) / v)
+        ai = argmax(ucb)
+        a = possible_actions[ai]
+
+        score = -games[ai].clone().do_playout()
+        scores[ai] += score
+        visited[ai] += 1
+
+    for i in xrange(N):
+        scores[i] /= visited[i]
 
     return possible_actions[argmax(scores)]
 
@@ -274,7 +310,18 @@ if __name__ == '__main__':
     _test()
 
 
+def run_one_play():
+    game = Game()
+    game.do_playout(
+        policy={RED: montecarlo, BLUE: montecarlo_ucb},
+        verbose=True)
 
 # test_random_playout
 game = Game()
-game.do_playout(policy={RED: montecarlo, BLUE: montecarlo}, verbose=True)
+stat = Counter()
+while True:
+    g = game.clone()
+    s = g.do_playout(policy={RED: montecarlo, BLUE: montecarlo_ucb})
+    g.print_map()
+    stat.update([s])
+    print stat
