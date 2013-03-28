@@ -7,7 +7,6 @@ from enum import *
 
 class MontecarloPlayer(object):
     def __init__(self, side):
-        side = 'BLUE' # FIXME
         self.game = Game()
         if side == 'RED':
             self.side = RED
@@ -23,7 +22,7 @@ class MontecarloPlayer(object):
             color = reverse(self.opposite)
         else:
             color = self.opposite
-        put(self.game, color)
+        put(self.game, pos, color)
         self.game.switch_user()
 
     def nextmove(self):
@@ -31,6 +30,7 @@ class MontecarloPlayer(object):
         if not actions:
             return ('PASS', None, None)
         pos, color = montecarlo_ucb(actions, self.game)
+        put(self.game, pos, color)
         if color == self.side:
             return ('MOVE', pos, self.side_s)
         else:
