@@ -181,8 +181,8 @@ class Game(object):
             winner = None
         return
 
+
     def do_playout(self):
-        from random import choice
         is_passed = False
         subject = self.next
         while True:
@@ -197,7 +197,7 @@ class Game(object):
                 continue
 
             is_passed = False
-            pos, color = choice(actions)  # choose randomly
+            pos, color = choose_randomly(actions, self)
             put(self, pos, color)
             self.switch_user()
 
@@ -208,8 +208,44 @@ class Game(object):
                 winner = RED
                 break
 
-        print winner
-        self.print_map()
+        if winner == subject:
+            score = 1.0
+        elif winner == None:
+            score = 0.5
+        else:
+            score = 0.0
+
+        return score
+
+    def clone(self):
+        from copy import copy
+        ret = Game()
+        ret.map = copy(self.map)
+        ret.next = self.next
+        return ret
+
+# Policy (context: Reinforce Learning)
+def choose_randomly(possible_actions, game):
+    from random import choice
+    return choice(possible_actions)
+
+def montecalro(possible_actions, game):
+    "play random 100 times for each possible actions"
+    scores = []
+    for a in possible_actions:
+        score = 0
+        g = game.clone()
+        put(g, *a)
+        g.switch_user()
+        for i in range(100):
+            score += g.clone().do_playout()
+        scores.append(score)
+
+    return possible_actions[argmax(scores)]
+
+def argmax(xs):
+    max_value = max(xs)
+    return xs.index(max_value)
 
 def _test():
     import doctest
@@ -218,6 +254,11 @@ def _test():
 if __name__ == '__main__':
     _test()
 
+
+
 # test_random_playout
 game = Game()
-game.do_playout()
+game.clone().do_playout()
+game.clone().do_playout()
+game.clone().do_playout()
+
