@@ -57,7 +57,9 @@ REVERSED = [None, WHITE_R, WHITE_B, None, None, RED, BLUE]
 SAMPLE_PER_ACTION = 100
 directions = [-8, -7, -6, -1, +1, +6, +7, +8]
 
-if getattr(__builtins__, 'profile', None) == None:
+try:
+    profile
+except:
     profile = lambda x: x
 
 def reverse(color):
@@ -260,6 +262,7 @@ class Game(object):
         return ''.join(str(MAP[x]) for x in self.map)
 
 
+    @profile
     def get_possible_actions(self):
         ret = []
         color = self.next
