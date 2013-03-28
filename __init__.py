@@ -19,6 +19,7 @@ class MontecarloPlayer(object):
         self.opposite = opposite(self.side)
 
     def move(self, pos, color):
+        assert self.game.next == self.opposite
         if color == 'WHITE':
             color = reverse(self.opposite)
         else:
@@ -31,8 +32,10 @@ class MontecarloPlayer(object):
         self.game.switch_user()
 
     def nextmove(self):
+        assert self.game.next == self.side
         actions = self.game.get_possible_actions()
         if not actions:
+            self.game.switch_user()
             return ('PASS', None, None)
         pos, color = montecarlo_ucb(actions, self.game)
         put(self.game, pos, color)
