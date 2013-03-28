@@ -157,8 +157,6 @@ def montecarlo_ucb(possible_actions, game):
             v = visited[i]
             ucb[i] = scores[i] / v + sqrt(2 * log(parent_visited) / v)
         ai = argmax(ucb)
-        a = possible_actions[ai]
-
         score = -games[ai].clone().do_playout()
         scores[ai] += score
         visited[ai] += 1
@@ -306,22 +304,23 @@ def _test():
     import doctest
     doctest.testmod()
 
-if __name__ == '__main__':
-    _test()
-
-
 def run_one_play():
     game = Game()
     game.do_playout(
         policy={RED: montecarlo, BLUE: montecarlo_ucb},
         verbose=True)
 
-# test_random_playout
-game = Game()
-stat = Counter()
-while True:
-    g = game.clone()
-    s = g.do_playout(policy={RED: montecarlo, BLUE: montecarlo_ucb})
-    g.print_map()
-    stat.update([s])
-    print stat
+def main():
+    # test_random_playout
+    game = Game()
+    stat = Counter()
+    while True:
+        g = game.clone()
+        s = g.do_playout(policy={RED: montecarlo_ucb, BLUE: montecarlo})
+        g.print_map()
+        stat.update([s])
+        print stat
+
+if __name__ == '__main__':
+    _test()
+    main()
