@@ -61,3 +61,31 @@ class MontecarloPlayer(object):
             self.game.print_map()
         return ret
 
+
+class Human(MontecarloPlayer):
+    def nextmove(self):
+        #assert self.game.next == self.side
+        if self.game.next != self.side:
+            # opponent did pass
+            self.game.switch_user()
+
+        actions = self.game.get_possible_actions()
+        if not actions:
+            self.game.switch_user()
+            return ('PASS', None, None)
+        pos, color = montecarlo_ucb(actions, self.game)
+        self.game.print_map()
+        print pos, color
+        pos, color = input('(pos, color)>>>')
+        put(self.game, pos, color)
+        self.game.switch_user()
+        x, y = pos
+        if color == self.side:
+            ret = ('MOVE', (y, x), self.side_s)
+        else:
+            ret = ('MOVE', (y, x), 'WHITE')
+
+        if VERBOSE:
+            print 'nextmove called, returns:', ret
+            self.game.print_map()
+        return ret
