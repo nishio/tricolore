@@ -71,7 +71,7 @@ def reverse(color):
 def is_same_color(x, y):
     if x == y:
         return True
-    if x in WHITE and y in WHITE:
+    if (x & 4) and (y & 4):
         return True
     return False
 
@@ -119,8 +119,7 @@ def is_avail(newmap, pos, color):
     orig_pos = 8 + 7 * y + x
 
     for dir in directions:
-        pos = orig_pos
-        pos += dir
+        pos = orig_pos + dir
         v = newmap[pos]
         if v & 3 == 0: continue
         if is_same_color(v, color): continue
