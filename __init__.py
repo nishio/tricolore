@@ -5,8 +5,12 @@ https://github.com/shuyo/misc/blob/master/tricolour/tricolore.py
 from tricolore import Game, reverse, put, opposite, montecarlo_ucb
 from enum import *
 VERBOSE = False
+OUTPUT_IMAGE = False
+from renderer import Renderer
+renderer = Renderer()
 
 class MontecarloPlayer(object):
+    name = 'nishio:montecarlo'
     def __init__(self, side):
         self.game = Game()
         if side == 'RED':
@@ -17,6 +21,8 @@ class MontecarloPlayer(object):
             raise AssertionError
         self.side_s = side
         self.opposite = opposite(self.side)
+        if OUTPUT_IMAGE:
+            renderer.draw(self.game.map)
 
     def move(self, pos, color):
         assert self.game.next == self.opposite
@@ -36,6 +42,8 @@ class MontecarloPlayer(object):
             print 'move called:', pos, color
             self.game.print_map()
         self.game.switch_user()
+        if OUTPUT_IMAGE:
+            renderer.draw(self.game.map)
 
     def nextmove(self):
         #assert self.game.next == self.side
@@ -59,6 +67,10 @@ class MontecarloPlayer(object):
         if VERBOSE:
             print 'nextmove called, returns:', ret
             self.game.print_map()
+
+        if OUTPUT_IMAGE:
+            renderer.draw(self.game.map)
+
         return ret
 
 
